@@ -2,11 +2,13 @@ import express, {Application, Request, Response} from "express" ;
 import carRoutes from './routes/cars';
 import { env } from "./config/env"; 
 import {connectDB} from "./config/database";
-
-
+import {authenticateKey} from './middleware/auth.middleware';//ws4
+import { loggerMiddleware } from './middleware/logger.middleware';
 const PORT = env.port 
 const app: Application = express(); 
  
+
+
 app.get("/ping", async (_req : Request, res: Response) => { res.json({  message: "hello from Borys Moskalenko S00274025 " }); }); 
 
 app.get('/bananas', async (_req : Request, res: Response) => {res.json({message: "this is bananas",});});
@@ -14,11 +16,24 @@ app.get('/bananas', async (_req : Request, res: Response) => {res.json({message:
 app.get('/BorysWeb', async (_req : Request, res: Response) => { res.json({ message: "Borys Moskalenko page",});}); 
 
 
-app.use('/api/v1/cars', carRoutes); 
+//app.use(authenticateKey);//ws4
+
+
+app.use('/api/v1/cars',authenticateKey, carRoutes); 
+
+
+app.use('/api/v1/cars', loggerMiddleware, authenticateKey, carRoutes);//loger before
+app.use('/api/v1/cars', authenticateKey, loggerMiddleware, carRoutes);//loger after
+app.use(loggerMiddleware);
+
 app.use((req, _res, next) => {   
-console.log(`${req.method} ${req.originalUrl}`); 
-next(); 
+
+    console.log(`${req.method} ${req.originalUrl}`); 
+
+    next(); 
+
 });
+
 app.use(express.json()); 
 
 
