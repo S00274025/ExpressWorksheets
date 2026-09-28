@@ -1,95 +1,116 @@
 
-import { Request, Response } from 'express'; 
-import { CarService } from '../service/CarService'; 
- 
+import { Request, Response } from 'express';
+import { CarService } from '../service/CarService';
+import { createCarZSchema } from '../models/cars';
 
-const carService = new CarService(); 
+///
+const carService = new CarService();
 
-export class CarController { 
-     getCars = async (_req: Request, res: Response): Promise<void> => { 
+export class CarController {
 
-       try { 
+    getCars = async (_req: Request, res: Response): Promise<void> => {
 
-      const cars = await carService.getAllCars(); 
+        try {
 
-      res.status(200).json(cars); 
+            const cars = await carService.getAllCars();
 
-    } catch (error) { 
+            res.status(200).json(cars);
 
-      res.status(500).json({ message: 'Error fetching cars', error }); 
+        } catch (error) {
 
-    } 
+            res.status(500).json({ message: 'Error fetching cars', error });
 
-  }; 
- getCarById = async (req: Request, res: Response): Promise<void> => { 
+        }
 
-    try { 
+    };
 
-      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id; 
+    ///
+    getCarById = async (req: Request, res: Response): Promise<void> => {
 
-      const car = await carService.getCarById(id); 
+        try {
 
-      if (!car) { 
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
-        res.status(404).json({ message: 'Car not found' }); 
+            const car = await carService.getCarById(id);
 
-        return; 
+            if (!car) {
 
-      } 
+                res.status(404).json({ message: 'Car not found' });
 
-      res.status(200).json(car); 
+                return;
 
-    } catch (error) { 
+            }
 
-      res.status(500).json({ message: 'Error fetching car', error }); 
+            res.status(200).json(car);
 
-    } 
+        } catch (error) {
 
-  }; 
-createCar = async (req: Request, res: Response): Promise<void> => { 
+            res.status(500).json({ message: 'Error fetching car', error });
 
-    try { 
+        }
 
-      const newCar = await carService.createCar(req.body); 
+    };
+    ////////
+    createCar = async (req: Request, res: Response): Promise<void> => {
 
-      res.status(201).json(newCar); 
+        try {
 
-    } catch (error) { 
+            const newCar = await carService.createCar(req.body);
 
-      res.status(500).json({ message: 'Error inserting into MongoDB', error }); 
+            res.status(201).json(newCar);
 
-    } 
+        } catch (error) {
 
-  }; 
- updateCar = async (req: Request, res: Response): Promise<void> => { 
+            res.status(500).json({ message: 'Error inserting into MongoDB', error });
 
-    try { 
+        }
 
-      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id; 
+        const validation = createCarZSchema.safeParse(req.body);
 
-      const updatedCar = await carService.updateCar(id, req.body); 
+        console.log
 
-      if (!updatedCar) { 
+        if (!validation.success) {
+            res.status(400).json({ message: 'Invalid car data', errors: validation.error.issues });
+            return;
+        }
 
-        res.status(404).json({ message: 'Car not found' }); 
 
-        return; 
+    };
+    ///
+    updateCar = async (req: Request, res: Response): Promise<void> => {
 
-      } 
+        try {
 
-      res.status(200).json(updatedCar); 
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
-    } catch (error) { 
-        res.status(500).json({ message: 'Error updating car', error }); 
+            const updatedCar = await carService.updateCar(id, req.body);
 
-    } 
+            if (!updatedCar) {
 
-  }; 
-  deleteCar = async (_req: Request, res: Response): Promise<void> => { 
+                res.status(404).json({ message: 'Car not found' });
 
-    res.status(200).json({ success: true,  
+                return;
 
-      data: `this is just dummy for now a response to the delete car by id request with car id ${_req.params.id}` });  
+            }
 
-  }; 
+            res.status(200).json(updatedCar);
+
+        } catch (error) {
+            res.status(500).json({ message: 'Error updating car', error });
+
+        }
+
+    };
+    ////
+
+    deleteCar = async (_req: Request, res: Response): Promise<void> => {
+
+        res.status(200).json({
+            success: true,
+
+            data: `this is just dummy for now a response to the delete car by id request with car id ${_req.params.id}`
+        });
+
+    };
+
 }
