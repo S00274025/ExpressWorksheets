@@ -4,6 +4,8 @@ import { env } from "./config/env";
 import {connectDB} from "./config/database";
 import {authenticateKey} from './middleware/auth.middleware';//ws4
 import { loggerMiddleware } from './middleware/logger.middleware';
+import { swaggerSpec } from "./config/swagger";
+import swaggerUi from "swagger-ui-express";
 const PORT = env.port 
 const app: Application = express(); 
  
@@ -17,6 +19,11 @@ app.get('/BorysWeb', async (_req : Request, res: Response) => { res.json({ messa
 
 
 //app.use(authenticateKey);//ws4
+app.use(
+'/api-docs',
+swaggerUi.serve,
+swaggerUi.setup(swaggerSpec)
+);
 
 
 app.use('/api/v1/cars',authenticateKey, carRoutes); 
