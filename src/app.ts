@@ -26,7 +26,9 @@ swaggerUi.setup(swaggerSpec)
 );
 
 
-app.use('/api/v1/cars',authenticateKey, carRoutes); 
+app.use(express.json()); 
+
+app.use('/api/v1/cars', carRoutes); 
 
 
 app.use('/api/v1/cars', loggerMiddleware, authenticateKey, carRoutes);//loger before
@@ -41,7 +43,6 @@ app.use((req, _res, next) => {
 
 });
 
-app.use(express.json()); 
 
 
 // app.listen(PORT, () => { 
