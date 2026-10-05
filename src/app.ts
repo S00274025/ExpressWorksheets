@@ -48,18 +48,18 @@ app.use((req, _res, next) => {
 // app.listen(PORT, () => { 
 // console.log("Server is running on port", PORT); 
 // }); 
-const startServer = async () => { 
+// const startServer = async () => { 
 
- await connectDB(); 
-
- 
-
- app.listen(PORT, () => { 
-
- console.log(`Server running on port ${PORT}`); 
- }); 
+//  await connectDB(); 
 
  
 
-}; 
-startServer();
+//  app.listen(PORT, () => { 
+
+//  console.log(`Server running on port ${PORT}`); 
+//  }); 
+
+ 
+
+// }; 
+// startServer();
