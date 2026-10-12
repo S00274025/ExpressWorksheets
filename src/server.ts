@@ -1,26 +1,18 @@
 import { app } from './app';
 import { env } from './config/env';
-import { connectDB } from "./config/database";
+import { connectDB } from './config/database';
 
-const port = env.port;
+export const startServer = async (): Promise<void> => {
+  if (env.nodeEnv !== 'test') {
+    await connectDB();
+  }
 
-const startServer = async () => {
-  await connectDB();
-
-  app.listen(port, (error) => {
-    if (error) {
-      if (error instanceof Error) {
-        console.error("Error starting server:", error.message);
-      }
-      else {
-        console.error("Error starting server:", error);
-      }
-
-    }
-    else {
-      console.log(`Server running on port ${port}`);
-    }
+  app.listen(env.port, () => {
+    console.log(`Server running on port ${env.port}`);
   });
+};
+
+if (require.main === module) {
+  void startServer();
 }
 
-startServer();

@@ -1,52 +1,54 @@
-import { CarModel, ICar } from '../models/cars' 
 
-import { HydratedDocument } from 'mongoose'; 
+import { HydratedDocument } from 'mongoose';
+import { CarModel, ICar } from '../models/cars';
+import { NotFoundError } from '../apperrors/appError';
 
- 
+export class CarService {
+  async getAllCars(): Promise<ICar[]> {
+    return await CarModel.find().lean();
+  }
 
-export class CarService { 
+  async getCarById(id: string): Promise<ICar> {
+    const car = await CarModel.findById(id).lean();
 
- 
- 
- 
- async getAllCars(): Promise<ICar[]> { 
+    if (!car) {
+      throw new NotFoundError('Car');
+    }
 
- return await CarModel.find().lean();  
-} 
+    return car;
+  }
 
- 
+  async createCar(
+    carData: ICar
+  ): Promise<HydratedDocument<ICar>> {
+    const car = new CarModel(carData);
+    return await car.save();
+  }
 
-async getCarById(id: string): Promise<ICar | null> { 
+  async updateCar(
+    id: string,
+    carData: Partial<ICar>
+  ): Promise<ICar> {
+    const car = await CarModel.findByIdAndUpdate(
+      id,
+      carData,
+      { returnDocument: 'after', runValidators: true }
+    ).lean();
 
- return await CarModel.findById(id).lean(); 
+    if (!car) {
+      throw new NotFoundError('Car');
+    }
 
- } 
+    return car;
+  }
 
- 
+  async deleteCar(id: string): Promise<ICar> {
+    const car = await CarModel.findByIdAndDelete(id).lean();
 
- async createCar(carData: ICar): Promise<HydratedDocument<ICar>> { 
+    if (!car) {
+      throw new NotFoundError('Car');
+    }
 
-const car = new CarModel(carData); 
-
- return await car.save(); 
-
- } 
-
- 
-
- async updateCar(id: string, carData: Partial<ICar>): Promise<ICar | null> { 
-
- return await CarModel.findByIdAndUpdate(id, carData, { returnDocument: 'after' }).lean(); 
-} 
-
- 
-
- async deleteCar(id: string): Promise<ICar | null> { 
-
- return await CarModel.findByIdAndDelete(id).lean(); 
-
- } 
-
-} 
-
- 
+    return car;
+  }
+}

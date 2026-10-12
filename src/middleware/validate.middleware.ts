@@ -1,23 +1,37 @@
+
 import { z } from 'zod';
-import { Request, Response, NextFunction } from 'express';
+import {
+  Request,
+  Response,
+  NextFunction
+} from 'express';
 
-export const validate = (schema: z.ZodObject<any>)   => (
+import { ValidationError } from '../apperrors/appError';
+
+export const validate = (schema: z.ZodObject<any>) => (
   req: Request,
-res: Response,
+  _res: Response,
   next: NextFunction
-) : void => {
-
-  const validation = schema.safeParse(req.body);
+): void => {
+  const validation = schema.safeParse({
+    body: req.body,
+    params: req.params,
+    query: req.query
+  });
 
   if (!validation.success) {
-    res.status(400).json({
-      message: 'Validation failed',
-      errors: validation.error.issues
-    });
+    next(
+      new ValidationError(
+        'Validation failed',
+        validation.error.issues
+      )
+    );
     return;
   }
 
-  req.body = validation.data
+  if ('body' in validation.data) {
+    req.body = validation.data.body;
+  }
 
   next();
 };

@@ -1,24 +1,29 @@
-import dotenv from "dotenv";
-import { z } from "zod";
+import dotenv from 'dotenv';
+import { z } from 'zod';
 
 dotenv.config();
 
 const envSchema = z.object({
-  PORT: z.coerce.number().int().positive(),
-  NODE_ENV: z.enum(["development", "test", "production"]),
-  MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
+  PORT: z.coerce.number().int().positive().default(3000),
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  MONGODB_URI: z.string().min(1, 'MONGODB_URI is required').default('mongodb://localhost:27017/expressworksheets'),
 });
 
-const result = envSchema.safeParse(process.env);
+const result = envSchema.safeParse({
+  ...process.env,
+  PORT: process.env.PORT ?? '3000',
+  NODE_ENV: process.env.NODE_ENV ?? 'development',
+  MONGODB_URI: process.env.MONGODB_URI ?? 'mongodb://localhost:27017/expressworksheets',
+});
 
-if (!result.success) {
-  console.error("Environment validation failed");
-  console.error(z.prettifyError(result.error));
-  process.exit(1);
-}
+const envData = result.success ? result.data : envSchema.parse({
+  PORT: process.env.PORT ?? 3000,
+  NODE_ENV: process.env.NODE_ENV ?? 'development',
+  MONGODB_URI: process.env.MONGODB_URI ?? 'mongodb://localhost:27017/expressworksheets',
+});
 
 export const env = {
-  port: result.data.PORT,
-  nodeEnv: result.data.NODE_ENV,
-  mongoURI: result.data.MONGODB_URI,
+  port: envData.PORT,
+  nodeEnv: envData.NODE_ENV,
+  mongoURI: envData.MONGODB_URI,
 };

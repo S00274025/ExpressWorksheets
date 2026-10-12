@@ -1,30 +1,55 @@
-import { Router } from 'express'; 
 
-import {validate} from '../middleware/validate.middleware';
-import {createCarZSchema, updateCarZSchema}  from '../models/cars';
+import { Router } from 'express';
+import { z } from 'zod';
 
-import { CarController } from '../controllers/cars'; 
+import { validate } from '../middleware/validate.middleware';
+import {
+  createCarZSchema,
+  updateCarZSchema,
+  carParamsSchema
+} from '../models/cars';
+import { CarController } from '../controllers/cars';
 import { authenticateKey } from '../middleware/auth.middleware';
 
- 
+const router = Router();
+const carController = new CarController();
 
-const router = Router(); 
+const createCarRequestSchema = z.object({
+  body: createCarZSchema
+});
 
-const carController = new CarController(); 
+const updateCarRequestSchema = z.object({
+  body: updateCarZSchema,
+  params: carParamsSchema.shape.params
+});
 
- 
-router.post('/', validate(createCarZSchema), carController.createCar);
+router.get('/', carController.getCars);
 
-router.get('/', carController.getCars); 
+router.get(
+  '/:id',
+  validate(carParamsSchema),
+  carController.getCarById
+);
 
-router.get('/:id', carController.getCarById); 
+router.post(
+  '/',
+  authenticateKey,
+  validate(createCarRequestSchema),
+  carController.createCar
+);
 
-router.post('/',authenticateKey, carController.createCar); 
+router.put(
+  '/:id',
+  authenticateKey,
+  validate(updateCarRequestSchema),
+  carController.updateCar
+);
 
-router.put('/:id', validate(updateCarZSchema), carController.updateCar); 
+router.delete(
+  '/:id',
+  authenticateKey,
+  validate(carParamsSchema),
+  carController.deleteCar
+);
 
-router.delete('/:id', carController.deleteCar); 
-
- 
-
-export default router; 
+export default router;

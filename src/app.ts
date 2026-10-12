@@ -1,65 +1,30 @@
-import express, {Application, Request, Response} from "express" ; 
+import express, { Application, Request, Response } from 'express';
+import swaggerUi from 'swagger-ui-express';
+
 import carRoutes from './routes/cars';
-import { env } from "./config/env"; 
-import {connectDB} from "./config/database";
-import {authenticateKey} from './middleware/auth.middleware';//ws4
+import { env } from './config/env';
+import { swaggerSpec } from './config/swagger';
 import { loggerMiddleware } from './middleware/logger.middleware';
-import { swaggerSpec } from "./config/swagger";
-import swaggerUi from "swagger-ui-express";
-const PORT = env.port 
-const app: Application = express(); 
- 
+import { authenticateKey } from './middleware/auth.middleware';
+import { errorHandler } from './middleware/error.middleware';
 
+export const app: Application = express();
 
-app.get("/ping", async (_req : Request, res: Response) => { res.json({  message: "hello from Borys Moskalenko S00274025 " }); }); 
+app.use(express.json());
 
-app.get('/bananas', async (_req : Request, res: Response) => {res.json({message: "this is bananas",});});
-
-app.get('/BorysWeb', async (_req : Request, res: Response) => { res.json({ message: "Borys Moskalenko page",});}); 
-
-
-//app.use(authenticateKey);//ws4
-app.use(
-'/api-docs',
-swaggerUi.serve,
-swaggerUi.setup(swaggerSpec)
-);
-
-
-app.use(express.json()); 
-
-app.use('/api/v1/cars', carRoutes); 
-
-
-app.use('/api/v1/cars', loggerMiddleware, authenticateKey, carRoutes);//loger before
-app.use('/api/v1/cars', authenticateKey, loggerMiddleware, carRoutes);//loger after
-app.use(loggerMiddleware);
-
-app.use((req, _res, next) => {   
-
-    console.log(`${req.method} ${req.originalUrl}`); 
-
-    next(); 
-
+app.get('/ping', (_req: Request, res: Response) => {
+  res.json({ message: 'hello from Borys Moskalenko S00274025' });
 });
 
+app.get('/bananas', (_req: Request, res: Response) => {
+  res.json({ message: 'this is bananas' });
+});
 
+app.get('/BorysWeb', (_req: Request, res: Response) => {
+  res.json({ message: 'Borys Moskalenko page' });
+});
 
-// app.listen(PORT, () => { 
-// console.log("Server is running on port", PORT); 
-// }); 
-// const startServer = async () => { 
-
-//  await connectDB(); 
-
- 
-
-//  app.listen(PORT, () => { 
-
-//  console.log(`Server running on port ${PORT}`); 
-//  }); 
-
- 
-
-// }; 
-// startServer();
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/v1/cars', loggerMiddleware, authenticateKey, carRoutes);
+app.use(errorHandler);
+export const port = env.port;
