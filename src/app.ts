@@ -6,6 +6,7 @@ import {authenticateKey} from './middleware/auth.middleware';//ws4
 import { loggerMiddleware } from './middleware/logger.middleware';
 import { swaggerSpec } from "./config/swagger";
 import swaggerUi from "swagger-ui-express";
+import cors from 'cors';
 const PORT = env.port 
 const app: Application = express(); 
  
@@ -40,7 +41,7 @@ app.use((req, _res, next) => {
     next(); 
 
 });
-
+app.use(cors());
 app.use(express.json()); 
 
 
