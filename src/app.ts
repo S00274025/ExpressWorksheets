@@ -11,7 +11,9 @@ const PORT = env.port
 const app: Application = express(); 
  
 
-
+app.use(cors({
+  origin: 'http://localhost:4200'
+}));
 app.get("/ping", async (_req : Request, res: Response) => { res.json({  message: "hello from Borys Moskalenko S00274025 " }); }); 
 
 app.get('/bananas', async (_req : Request, res: Response) => {res.json({message: "this is bananas",});});
@@ -41,7 +43,7 @@ app.use((req, _res, next) => {
     next(); 
 
 });
-app.use(cors());
+
 app.use(express.json()); 
 
 
