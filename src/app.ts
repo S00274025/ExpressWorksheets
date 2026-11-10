@@ -9,11 +9,12 @@ import swaggerUi from "swagger-ui-express";
 import cors from 'cors';
 const PORT = env.port 
 const app: Application = express(); 
- 
+
 
 app.use(cors({
   origin: 'http://localhost:4200'
 }));
+app.use(express.json()); 
 app.get("/ping", async (_req : Request, res: Response) => { res.json({  message: "hello from Borys Moskalenko S00274025 " }); }); 
 
 app.get('/bananas', async (_req : Request, res: Response) => {res.json({message: "this is bananas",});});
@@ -44,7 +45,6 @@ app.use((req, _res, next) => {
 
 });
 
-app.use(express.json()); 
 
 
 // app.listen(PORT, () => { 
